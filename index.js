@@ -23,9 +23,9 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const productCollection = client.db("warehouse").collection("product");
+    const productCollection = client.db("warehouse").collection("inventory");
 
-    app.get("/products", async (req, res) => {
+    app.get("/inventory", async (req, res) => {
       const query = {};
       const cursor = productCollection.find(query);
       const products = await cursor.toArray();
