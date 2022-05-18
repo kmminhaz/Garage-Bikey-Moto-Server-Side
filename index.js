@@ -31,6 +31,13 @@ async function run() {
       const products = await cursor.toArray();
       res.send(products);
     });
+    
+    app.get("/inventory/:id", async (req, res) => {
+      const id = req.params.id
+      const query = { _id: ObjectId(id) };
+      const product = productCollection.findOne(query);
+      res.send(product);
+    });
   } finally {
     //   await client.close();
   }
