@@ -38,6 +38,25 @@ async function run() {
       const product = await productCollection.findOne(query);
       res.send(product);
     });
+
+    app.put("/inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedQuantity = req.body;
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: updatedQuantity
+        },
+      };
+
+      const result = await productCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
     
   } finally {
     //   await client.close();
