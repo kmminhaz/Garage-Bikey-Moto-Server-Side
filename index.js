@@ -31,10 +31,10 @@ async function run() {
       const products = await cursor.toArray();
       res.send(products);
     });
-    
+
     app.get("/inventory/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: ObjectId(id)};
+      const query = { _id: ObjectId(id) };
       const product = await productCollection.findOne(query);
       res.send(product);
     });
@@ -44,10 +44,11 @@ async function run() {
       const updatedQuantity = req.body;
       const query = { _id: ObjectId(id) };
       const options = { upsert: true };
+      const value = updatedQuantity.quantity;
       const updateDoc = {
         $set: {
-          quantity: updatedQuantity
-        },
+          quantity : value
+        }
       };
 
       const result = await productCollection.updateOne(
@@ -57,7 +58,6 @@ async function run() {
       );
       res.send(result);
     });
-    
   } finally {
     //   await client.close();
   }
