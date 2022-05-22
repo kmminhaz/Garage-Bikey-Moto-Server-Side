@@ -14,6 +14,21 @@ app.get("/", (req, res) => {
   res.send("Hello World with heroku!");
 });
 
+function verifyJWToken(req, res, next){
+  const authorizationHeader = req.headers.authorization;
+  if(!authorizationHeader){
+    return res.status(401).send({message: "unauthorized access"})
+  }
+  const token = authorizationHeader.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if(err){
+      return res.status(403).send({message: "Request Access Forbidden"});
+    }
+    req.decoded = decoded;
+  })
+  next();
+}
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.xoxwb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -26,13 +41,13 @@ async function run() {
     await client.connect();
     const productCollection = client.db("warehouse").collection("inventory");
 
-    app.post("/login", async(req, res) => {
+    app.post("/login", async (req, res) => {
       const user = req.body;
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '12h'
+        expiresIn: "12h",
       });
-      res.send({accessToken});
-    })
+      res.send({ accessToken });
+    });
 
     app.get("/inventory", async (req, res) => {
       const query = {};
@@ -56,8 +71,8 @@ async function run() {
       const value = updatedQuantity.quantity;
       const updateDoc = {
         $set: {
-          quantity : value
-        }
+          quantity: value,
+        },
       };
 
       const result = await productCollection.updateOne(
@@ -75,10 +90,21 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/inventory", async(req, res) => {
+    app.post("/inventory", async (req, res) => {
       const newInventory = req.body;
       const result = await productCollection.insertOne(newInventory);
       res.send(result);
+    });
+
+    app.get("/myInventory", verifyJWToken, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.query.email;
+      if(email === decodedEmail){
+        const query = { email: email };
+        const cursor = productCollection.find(query);
+        const products = await cursor.toArray();
+        res.send(products);
+      }
     });
   } finally {
     //   await client.close();
@@ -88,5 +114,5 @@ async function run() {
 run().catch(console.dir);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server is listening the port ${port}`);
 });
