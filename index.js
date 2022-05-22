@@ -14,6 +14,7 @@ app.get("/", (req, res) => {
   res.send("Hello World with heroku!");
 });
 
+// Verifying JWT
 function verifyJWToken(req, res, next){
   const authorizationHeader = req.headers.authorization;
   if(!authorizationHeader){
@@ -29,6 +30,7 @@ function verifyJWToken(req, res, next){
   next();
 }
 
+// Database Connection
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.xoxwb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -41,6 +43,7 @@ async function run() {
     await client.connect();
     const productCollection = client.db("warehouse").collection("inventory");
 
+    // Creating JWT Access Token { JWT }
     app.post("/login", async (req, res) => {
       const user = req.body;
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -49,6 +52,7 @@ async function run() {
       res.send({ accessToken });
     });
 
+    // Loading all the inventories { Load Inventory }
     app.get("/inventory", async (req, res) => {
       const query = {};
       const cursor = productCollection.find(query);
@@ -56,6 +60,7 @@ async function run() {
       res.send(products);
     });
 
+    // Loading a particular inventory { Load inventory:id details }
     app.get("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -63,6 +68,7 @@ async function run() {
       res.send(product);
     });
 
+    // Updating a Particuler inventory { Update Inventory }
     app.put("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const updatedQuantity = req.body;
@@ -83,6 +89,7 @@ async function run() {
       res.send(result);
     });
 
+    // Deleting a Particuler Inventory { Delete Inventory }
     app.delete("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -90,12 +97,14 @@ async function run() {
       res.send(result);
     });
 
+    // Inserting a new Inventory { Add Inventory }
     app.post("/inventory", async (req, res) => {
       const newInventory = req.body;
       const result = await productCollection.insertOne(newInventory);
       res.send(result);
     });
 
+    // Showing Individual user Inventory { myInventory }
     app.get("/myInventory", verifyJWToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.query.email;
@@ -107,7 +116,6 @@ async function run() {
       }
     });
   } finally {
-    //   await client.close();
   }
 }
 
