@@ -105,9 +105,9 @@ async function run() {
     });
 
     // Showing Individual user Inventory { myInventory }
-    app.get("/myInventory", verifyJWToken, async (req, res) => {
+    app.get("/myInventory/:email", verifyJWToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
-      const email = req.query.email;
+      const email = req.params.email;
       if(email === decodedEmail){
         const query = { email: email };
         const cursor = productCollection.find(query);
