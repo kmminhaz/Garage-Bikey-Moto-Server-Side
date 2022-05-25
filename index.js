@@ -105,9 +105,10 @@ async function run() {
     });
 
     // Showing Individual user Inventory { myInventory }
-    app.get("/myInventory/:email", verifyJWToken, async (req, res) => {
+    app.get("/myInventory", verifyJWToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
-      const email = req.params.email;
+      const email = req.query.email;
+      console.log(email);
       if(email === decodedEmail){
         const query = { email: email };
         const cursor = productCollection.find(query);
@@ -122,5 +123,5 @@ async function run() {
 run().catch(console.dir);
 
 app.listen(port, () => {
-  console.log(`Server is Running on the port ${port}`);
+  console.log(`Server is Running the port ${port}`);
 });
