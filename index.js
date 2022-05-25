@@ -105,11 +105,11 @@ async function run() {
     });
 
     // Showing Individual user Inventory { myInventory }
-    app.get("/myInventory", verifyJWToken, async (req, res) => {
-      const decodedEmail = req.decoded.email;
+    app.get("/myInventory", async (req, res) => {
+      // const decodedEmail = req.decoded.email;
       const email = req.query.email;
       console.log(email);
-      if(email === decodedEmail){
+      if(email){
         const query = { email: email };
         const cursor = productCollection.find(query);
         const products = await cursor.toArray();
