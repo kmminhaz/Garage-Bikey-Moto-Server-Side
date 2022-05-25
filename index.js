@@ -26,6 +26,7 @@ function verifyJWToken(req, res, next){
       return res.status(403).send({message: "Request Access Forbidden"});
     }
     req.decoded = decoded;
+    console.log(req.decoded);
   })
   next();
 }
@@ -105,11 +106,10 @@ async function run() {
     });
 
     // Showing Individual user Inventory { myInventory }
-    app.get("/myInventory", async (req, res) => {
-      // const decodedEmail = req.decoded.email;
-      const email = req.query.email;
-      console.log(email);
-      if(email){
+    app.get("/myInventory", verifyJWToken, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.query.email;    
+      if(email === decodedEmail){
         const query = { email: email };
         const cursor = productCollection.find(query);
         const products = await cursor.toArray();
