@@ -122,5 +122,5 @@ async function run() {
 run().catch(console.dir);
 
 app.listen(port, () => {
-  console.log(`Server is listening the port ${port}`);
+  console.log(`Server is Running on the port ${port}`);
 });
