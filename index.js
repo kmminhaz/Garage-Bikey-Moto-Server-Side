@@ -15,19 +15,21 @@ app.get("/", (req, res) => {
 });
 
 // Verifying JWT
-function verifyJWToken(req, res, next){
+function verifyJWToken(req, res, next) {
   const authorizationHeader = req.headers.authorization;
-  if(!authorizationHeader){
-    return res.status(401).send({message: "unauthorized access"})
+  console.log(authorizationHeader);
+  if (!authorizationHeader) {
+    return res.status(401).send({ message: "unauthorized access" });
   }
-  const token = authorizationHeader.split(' ')[1];
+  const token = authorizationHeader.split(" ")[1];
+  console.log(token);
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if(err){
-      return res.status(403).send({message: "Request Access Forbidden"});
+    if (err) {
+      return res.status(403).send({ message: "Request Access Forbidden" });
     }
     req.decoded = decoded;
-    console.log(req.decoded);
-  })
+    console.log(decoded);
+  });
   next();
 }
 
@@ -107,9 +109,11 @@ async function run() {
 
     // Showing Individual user Inventory { myInventory }
     app.get("/myInventory", verifyJWToken, async (req, res) => {
+      const email = req.query.email;
       const decodedEmail = req.decoded.email;
-      const email = req.query.email;    
-      if(email){
+      console.log(`Here is ${email} And ${decodedEmail} are they equal ?`);
+      if (email === decodedEmail) {
+        console.log("I am In");
         const query = { email: email };
         const cursor = productCollection.find(query);
         const products = await cursor.toArray();
