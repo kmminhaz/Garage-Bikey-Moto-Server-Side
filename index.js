@@ -43,7 +43,7 @@ const client = new MongoClient(uri, {
 });
 async function run() {
   try {
-    await client.connect();
+    client.connect();
     const productCollection = client.db("warehouse").collection("inventory");
 
     // Creating JWT Access Token { JWT }
